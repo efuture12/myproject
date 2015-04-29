@@ -1,8 +1,10 @@
 #!/bin/bash
-OUTPUT=/usr/local/test/show.csv
-echo $(/sbin/ifconfig eth0  | sed -n '/inet addr:/s/inet addr://pg' | awk -F " " '{print $1}';echo ',';/sbin/ifconfig eth0  | sed -n '/HWaddr/s/^.*HWaddr *//pg';echo ',';netstat -an |grep ":23" |grep "ESTABLISHED"| grep -cv "grep";echo ',';date) >$OUTPUT 
-#/sbin/ifconfig eth0  | sed -n '/inet addr:/ s/inet addr://pg' | awk -F" " '{print $1}' > $OUTPUT   
-#/sbin/ifconfig eth0  | sed -n '/HWaddr/ s/^.*HWaddr *//pg' >> $OUTPUT
-#netstat -an |grep ":23" |grep "ESTABLISHED" | grep -cv "grep" >> $OUTPUT 
-#date >>  $OUTPUT
-#scp -r   root@172.17.9.190:/usr/local/test.img  .
+
+ipadd=$(/sbin/ifconfig eth0  | sed -n '/inet addr:/ s/inet addr://pg' | awk -F" " '{print $1}')
+mac=$(/sbin/ifconfig eth0  | sed -n '/HWaddr/ s/^.*HWaddr *//pg') 
+num=$(netstat -an |grep ":23" |grep "ESTABLISHED" | grep -cv "grep") 
+date=$(date)
+
+curl -d '[{"ipadd":"'"$ipadd"'", "mac": "'"$mac"'","num":"'"$num"'","date":"'"$date"'"}]' -H 'Content-Type: application/json'  http://127.0.0.1:5000/RouteMessage
+
+
